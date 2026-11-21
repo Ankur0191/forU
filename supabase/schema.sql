@@ -18,6 +18,7 @@ create table if not exists public.messages (
   constraint messages_no_blank check (length(trim(body)) > 0)
 );
 create index if not exists messages_created_at_idx on public.messages(created_at desc);
+create index if not exists messages_sender_id_idx on public.messages(sender_id);
 
 -- Only two users may be provisioned, and only through trusted SQL/admin access.
 create or replace function public.foru_limit_members()
