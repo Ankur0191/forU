@@ -134,6 +134,10 @@ export function ChatApp() {
 
       await loadMessages();
       if (!active) return;
+      await supabase!.from("messages")
+        .update({ read_at: new Date().toISOString() })
+        .neq("sender_id", currentUserId)
+        .is("read_at", null);
 
       const { data: sessionData } = await supabase!.auth.getSession();
       if (sessionData.session?.access_token) {
@@ -398,7 +402,7 @@ export function ChatApp() {
             <div className={"connection-indicator " + connection} title={"Realtime " + connection}>
               {connection === "connected" ? <Wifi size={15} /> : <WifiOff size={15} />}
             </div>
-            <button className="icon-button" aria-label="Conversation details"><MoreHorizontal size={20} /></button>
+            <button className="icon-button" onClick={logout} aria-label="Sign out" title="Sign out"><LogOut size={17} /></button>
           </div>
         </header>
 
@@ -454,7 +458,7 @@ export function ChatApp() {
             <footer className="composer-area">
               {sendError && <div className="send-error">{sendError}</div>}
               <form className="composer" onSubmit={sendMessage} ref={formRef}>
-                <button type="button" className="composer-tool" aria-label="Attachments are not available yet" title="Attachments coming soon"><Paperclip size={19} /></button>
+                <button type="button" className="composer-tool" aria-label="Attachments coming soon" title="Attachments coming soon" disabled><Paperclip size={19} /></button>
                 <textarea value={draft} onChange={(event) => updateDraft(event.target.value)} onKeyDown={handleComposerKeyDown} placeholder="Write something nice…" rows={1} maxLength={10000} aria-label="Message" />
                 <button type="button" className="composer-tool emoji-button" aria-label="Add a heart" onClick={() => updateDraft(draft + " ❤️")}><Smile size={19} /></button>
                 <button type="submit" className="send-button" disabled={!draft.trim() || sending || connection !== "connected"} aria-label="Send message">
